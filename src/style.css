@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    @apply font-sans text-base leading-6 font-normal text-black antialiased;
+}
+
+body {
+    @apply min-w-[320px] min-h-screen bg-gray-900;
+}
+
+#app {
+    @apply w-full h-screen flex items-center justify-center;
+}
