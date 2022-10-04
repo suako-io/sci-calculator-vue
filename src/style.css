@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    @apply font-sans text-base leading-6 font-normal text-black antialiased;
+    @apply font-sans text-base leading-6 font-normal text-white antialiased;
 }
 
 body {
@@ -11,5 +11,5 @@ body {
 }
 
 #app {
-    @apply w-full h-screen flex items-center justify-center;
+    @apply w-full h-screen flex flex-col items-center justify-center;
 }

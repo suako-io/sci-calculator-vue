@@ -1,98 +1,147 @@
-import { BreakAfterProperty } from 'csstype';
 import { ref, readonly } from 'vue';
 
 export function calculator() {
-    let calculation = ref("");
-    let calculationCompleted = ref(false);
+    let onScreen = ref("");
+    let onScreenCursorPos: number = 0;
+    let codeString: string = "";
+    let codeStringCursorPos: number = 0;
+    let lastCharacterAdded: string = "";
+    const operatorsArray: string[] = ['+', '-', '/', '*', '.'];
+    let isCalculationComplete: boolean = false;
 
-    function addChar(char: string) {
-        const lastEntry = calculation.value[calculation.value.length - 1];
+    function addSpecialChar(newChar: string, newCodeString: string, addBrackets: boolean = false) {
+        if (addBrackets) {
+            const screenSubString = `${newChar}()`;
+            insertStringOnScreen(screenSubString);
+            onScreenCursorPos += screenSubString.length - 1;
+            
+            const codeSubString = `${newCodeString}()`;
+            insertStringIntoCodeString(codeSubString);
+            codeStringCursorPos += codeSubString.length - 1;
+        }
+        else {
+            insertStringOnScreen(newChar);
+            onScreenCursorPos++;
+    
+            insertStringIntoCodeString(newCodeString);
+            codeStringCursorPos += newCodeString.length;
+        }
+    }
 
-        if (lastEntry === "." && char === ".")
-            return;
+    function insertStringOnScreen(stringToInsert: string){
+        lastCharacterAdded = stringToInsert;
+        const newString: string = onScreen.value.substring(0, onScreenCursorPos) + stringToInsert + onScreen.value.substring(onScreenCursorPos);
+        onScreen.value = newString;
+    }
 
-        if (calculationCompleted.value){
-            clearCalculation();
-            calculationCompleted.value = false;
+    function insertStringIntoCodeString(stringToInsert: string){
+        let leftSideOfString = codeString.substring(0, codeStringCursorPos);
+        const rightSideOfString = codeString.substring(codeStringCursorPos);
+
+        const lastCharOnLeftSide = leftSideOfString.split("").pop();
+
+        if (lastCharOnLeftSide) {
+            if (lastCharOnLeftSide?.match(/[a-zA-Z]/) || (!isNaN(parseFloat(lastCharOnLeftSide as string)) && stringToInsert.match(/[a-zA-Z]/))) {
+                leftSideOfString += '*';
+                codeStringCursorPos++
+            }
         }
 
+        const newString: string = leftSideOfString + stringToInsert + rightSideOfString;
+        
+        codeString = newString;
+    }
 
-        calculation.value += char;
-        console.log(calculation.value);
+    function addChar(newChar: string) {
+        if (lastCharacterAdded === '.' && lastCharacterAdded === newChar) return;
+
+        if (isCalculationComplete)
+            clearCalculation();
+
+        if (newChar != '.' && isNaN(parseFloat(newChar)) && !operatorsArray.includes(newChar)) {
+            switch(newChar) {
+                case ('pi'):
+                    addSpecialChar('π', "Math.PI");
+                    break;
+
+                case ('sqrt'):
+                    addSpecialChar('√', "Math.sqrt", true);
+                    break;
+
+                case ('sin'):
+                    addSpecialChar('sin', "Math.sin", true);
+                    break;
+                
+                case ('cos'):
+                    addSpecialChar('cos', "Math.cos", true);
+                    break;
+
+                case ('tan'):
+                    addSpecialChar('tan', "Math.tan", true);
+                    break;
+
+                case ('('):
+                    insertStringOnScreen("(");
+                    onScreenCursorPos++;
+                    insertStringIntoCodeString("(")
+                    codeStringCursorPos++;
+                    break;
+                
+                case (')'):
+                    insertStringOnScreen(")");
+                    insertStringIntoCodeString(")")
+                    break;
+                    
+                case ('pow'):
+                    break;
+
+                default: break;
+            }
+        }
+        else {
+            insertStringOnScreen(newChar);
+            onScreenCursorPos++;
+
+            insertStringIntoCodeString(newChar)
+            codeStringCursorPos++;
+        }
+        
+        // console.log(`On Screen: ${onScreen.value} | LEN: ${onScreen.value.length} | POS: ${onScreenCursorPos}`);
+        // console.log(`Code String: ${codeString} | LEN: ${codeString.length} | POS: ${codeStringCursorPos}`);
     }
 
     function calculate() {
-        if (!calculation.value) return;
-        
-        const expression: string = calculation.value;
+        if (!onScreen.value) return;
         let result: number;
 
-        console.log(expression);
-
-        for (var i = 0; i < expression.length; i++)
-            if (isNaN(parseInt(expression[i])) && !['+', '-', '/', '*', '.'].includes(expression[i]))
-                return; 
-
-        result = eval(expression);       
-        calculation.value = result.toString();
-        console.log(result);
-    }
-
-    function calculateSci(mathFunc: string){
-        if (!calculation.value) return;
-        const value: number = parseFloat(calculation.value);
-        let result: number;
-
-        switch (mathFunc){
-            case ('pi'):
-                result = Math.PI * value;
-                calculation.value = result.toString();
-                break;
-            
-            case ('sq'):
-                result = value * value;
-                calculation.value = result.toString();
-                break;
-
-            case ('sqrt'):
-                result = Math.sqrt(value);
-                calculation.value = result.toString();
-                break;
-
-            case ('sin'):
-                result = Math.sin(value);
-                calculation.value = result.toString();
-                break;
-
-            case ('cos'):
-                result = Math.cos(value);
-                calculation.value = result.toString();
-                break;
-
-            case ('tan'):
-                result = Math.tan(value);
-                calculation.value = result.toString();
-                break;
-
-            default: break;
-        }
+        result = eval(codeString);       
+        onScreen.value = result.toString();
+        isCalculationComplete = true;
+        // console.log(result);
     }
 
     function deleteLastChar(){
-        if (!calculation.value.length) return;
+        if (!onScreen.value.length || isCalculationComplete) return;
 
-        calculation.value = calculation.value.slice(0, -1);
+        onScreen.value = onScreen.value.slice(0, -1);
+        onScreenCursorPos--;
+
+        codeString = codeString.slice(0, -1);
+        codeStringCursorPos--;
     }
 
     function clearCalculation() {
-        calculation.value = "";
+        onScreen.value = "";
+        onScreenCursorPos = 0;
+        codeString = "";
+        codeStringCursorPos = 0;
+        isCalculationComplete = false;
     }
 
     return { 
-        calculation: readonly(calculation),
+        calculation: readonly(onScreen),
         addChar,
         calculate,
-        calculateSci,
         deleteLastChar,
         clearCalculation,
     };
