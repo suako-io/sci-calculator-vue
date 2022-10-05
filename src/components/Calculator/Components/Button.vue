@@ -1,8 +1,14 @@
 <script lang="ts">
+import { inverted } from '../calculator';
+
 export default {
     name: 'Button',
     props: {
+        buttonText: { type: String },
+        altText: { type: String },
+        canInvert: { type: Boolean, default: false },
         buttonStyle: { type: String, default: 'gray' },
+        isToggle: { type: Boolean, default: false },
     },
     setup(props: any) {
         let styleClasses: string = '';
@@ -40,7 +46,7 @@ export default {
                 break;
         }
 
-        return { classes: styleClasses };
+        return { classes: styleClasses, inverted };
     },
 };
 </script>
@@ -48,9 +54,10 @@ export default {
 <template>
     <button
         class="flex items-center justify-center rounded-3xl leading-[0px] text-[2rem] w-full h-full"
-        :class="classes"
+        :class="[classes, { 'bg-red-700 hover:bg-red-800 text-white': inverted && isToggle }]"
     >
-        <slot></slot>
+        <div v-if="!canInvert || (canInvert && !inverted)">{{ buttonText }}</div>
+        <div v-if="canInvert && inverted">{{ altText }}</div>
     </button>
 </template>
 

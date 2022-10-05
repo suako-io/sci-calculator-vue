@@ -12,7 +12,9 @@ export default {
         id="answer-box"
         class="min-w-full min-h-[15%] bg-gray-400 flex justify-end items-center rounded-2xl leading-[0px] text-[3rem] text-black"
     >
-        <div class="text-right pr-6">{{ answerText }}</div>
+        <div class="text-right pr-6">
+            {{ answerText }}
+        </div>
     </div>
 </template>
 
