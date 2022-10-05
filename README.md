@@ -10,6 +10,7 @@ I am new to Typescript so am still learning, future updates will hopefully refac
 - ~~Add Euler's constant,~~
 - ~~Factorials,~~
 - ~~Inverse functions button,~~
+- Add breakpoints / media queries to account for smaller devices
 
 # Setup this project yourself
 ```
