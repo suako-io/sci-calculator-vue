@@ -1,4 +1,4 @@
-# Suako Calc
+# Vue Scientific Calculator
 
 Scientific calculator built with [Vue](https://vuejs.org), [Vite](https://vitejs.dev), [Typescript](https://www.typescriptlang.org),[Tailwind CSS](https://tailwindcss.com) and [math.js](https://mathjs.org/).
 
